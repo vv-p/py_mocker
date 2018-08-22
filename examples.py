@@ -1,21 +1,56 @@
-from mock import get_mock, receipt
+from py_mocker import get_mock, receipt
 
 # Initialize mocker client
-mock = get_mock(host='localhost', port=8080)
+some_api = get_mock(path='/', host='localhost', port=8080)
 
 
-# Three usages of py_mocker library
+# Different usages of py_mocker library
 
-@mock('example.mock')
-def test_api():
+@some_api.mock('example.mock')
+def test_api_one():
+    """
+    Mock with file
+    """
     assert True
 
 
-@mock(receipt('GET', 'ya.ru', 200, '', '{}'))
+@some_api.mock(method='GET', url='/user/package', status=200, body='{}', timeout=2)
 def test_api_two():
+    """
+    Mock with direct arguments
+    """
     assert True
 
 
 def test_api_three():
-    with mock('example.mock') as m:
+    """
+    Mock with context manager
+    """
+    r = receipt(
+        method='GET',
+        url='/user/campaign',
+        status=200,
+        headers={
+            'x-xss-protection': '1; mode=block}',
+        },
+        json={
+            'campaigns': [
+                {
+                    'id': 1,
+                },
+                {
+                    'id': 2,
+                },
+            ]
+        }
+    )
+    with some_api.instant(receipt=r):
         assert True
+
+
+@some_api.redirect(url='/one/', to='', status=307, timeout=2)
+def test_api_four():
+    """
+    Mock with redirect
+    """
+    assert True
