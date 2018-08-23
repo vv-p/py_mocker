@@ -1,1 +1,3 @@
 aiohttp
+aiohttp-jinja2
+requests

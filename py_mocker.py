@@ -8,6 +8,7 @@ class Receipt:
     status: int = 200
     headers: dict = field(default_factory=lambda: {})
     body: str = ''
+    json: dict = field(default_factory=lambda: {})
     redirect: str = '/'
     timeout: int = 0
 

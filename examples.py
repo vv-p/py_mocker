@@ -1,12 +1,15 @@
-from py_mocker import get_mock, receipt
+from py_mocker import Mock, Receipt
 
 # Initialize mocker client
-some_api = get_mock(path='/', host='localhost', port=8080)
+some_api = Mock(path='/', host='localhost', port=8080)
+
+# Add persistent mock
+some_api.add(method='POST', url='/test/post')
 
 
 # Different usages of py_mocker library
 
-@some_api.mock('example.mock')
+@some_api.mock(receipt='example.mock')
 def test_api_one():
     """
     Mock with file
@@ -26,7 +29,7 @@ def test_api_three():
     """
     Mock with context manager
     """
-    r = receipt(
+    r = Receipt(
         method='GET',
         url='/user/campaign',
         status=200,
