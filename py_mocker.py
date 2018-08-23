@@ -1,18 +1,34 @@
-from collections import namedtuple
+from dataclasses import dataclass, field
 
 
-receipt = namedtuple('receipt', ['method', 'url', 'status', 'headers', 'body', 'redirect', 'timeout'])
+@dataclass
+class Receipt:
+    url: str
+    method: str = 'GET'
+    status: int = 200
+    headers: dict = field(default_factory=lambda: {})
+    body: str = ''
+    redirect: str = '/'
+    timeout: int = 0
 
 
+@dataclass
 class Mock:
-    def mock(self, *args, **kwargs):
+    path: str
+    host: str = '127.0.0.1'
+    port: int = 8080
+    content: list = field(default_factory=lambda: [])
+
+    def mock(self, **kwargs):
         pass
 
-    def redirect(self, receipt):
+    def redirect(self, **kwargs):
         pass
 
-    def instant(self, receipt):
-        # ToDo: Add mock here
+    def add(self, **kwargs):
+        self.content.append(Receipt(**kwargs))
+
+    def instant(self, **kwargs):
         return self
 
     def __enter__(self):
@@ -22,8 +38,5 @@ class Mock:
         print('Exit')
 
 
-
-def get_mock(host='localhost', port=8080, path='/'):
-    print('get_mock')
-    return Mock()
-
+m = Mock('/user/campaign')
+m.add(method='GET', status=200, body='{}', timeout=2, url='/')
