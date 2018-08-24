@@ -1,14 +1,23 @@
 import requests
 
-# Get known mock
-r = requests.get('http://127.0.0.1:8080/user/1121/campaign/3321/status')
-print(r.text)
+from py_mocker import Mock
 
-# Get unknown mock
-r = requests.get('http://127.0.0.1:8080/user/1121/campaigns/3321/status')
-print(r.text)
 
 # setup new mock
-headers = {'py-mocker': 'add_me'}
-r = requests.get('http://127.0.0.1:8080/user/1121/campaigns/3321/status', headers=headers)
+
+user_api = Mock(path='/user')
+status = user_api.add(
+    url='/campaigns',
+    body='Mock installed'
+)
+
+if status:
+    print('Mock created')
+else:
+    print('Mock wasn\'t created')
+
+# Get the mock
+
+r = requests.get('http://127.0.0.1:8080/user/campaigns')
+print(r.status_code)
 print(r.text)

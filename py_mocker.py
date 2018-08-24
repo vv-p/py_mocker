@@ -1,4 +1,7 @@
+import requests
+
 from dataclasses import dataclass, field
+from marshmallow import Schema, fields
 
 
 @dataclass
@@ -8,9 +11,18 @@ class Receipt:
     status: int = 200
     headers: dict = field(default_factory=lambda: {})
     body: str = ''
-    json: dict = field(default_factory=lambda: {})
     redirect: str = '/'
     timeout: int = 0
+
+
+class ReceiptSchema(Schema):
+    url = fields.Str()
+    method = fields.Str()
+    status = fields.Int()
+    headers = fields.Dict()
+    body = fields.Str()
+    redirect = fields.Str()
+    timeout = fields.Float()
 
 
 @dataclass
@@ -18,7 +30,6 @@ class Mock:
     path: str
     host: str = '127.0.0.1'
     port: int = 8080
-    content: list = field(default_factory=lambda: [])
 
     def mock(self, **kwargs):
         pass
@@ -26,8 +37,30 @@ class Mock:
     def redirect(self, **kwargs):
         pass
 
-    def add(self, **kwargs):
-        self.content.append(Receipt(**kwargs))
+    @property
+    def url(self):
+        return 'http://{}:{}'.format(self.host, self.port)
+
+    def make_path(self, path):
+        return '{}{}'.format(self.path, path)
+
+    def add(self, url, **kwargs):
+        headers = {
+            'py-mocker': 'add'
+        }
+
+        schema = ReceiptSchema()
+        mock_receipt = Receipt(url, **kwargs)
+        mock_receipt.url = self.make_path(url)
+        json = schema.dump(mock_receipt)
+
+        r = requests.post(
+            '{}'.format(self.url),
+            headers=headers,
+            json=json
+        )
+
+        return True if r.status_code == 201 else False
 
     def instant(self, **kwargs):
         return self
@@ -37,7 +70,3 @@ class Mock:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         print('Exit')
-
-
-m = Mock('/user/campaign')
-m.add(method='GET', status=200, body='{}', timeout=2, url='/')

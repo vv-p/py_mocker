@@ -10,35 +10,38 @@ MockSignature = namedtuple('MockSignature', ['method', 'path'])
 
 @dataclass
 class MockData:
+    url: str
+    method: str = 'GET'
     status: int = 200
     headers: dict = field(default_factory=lambda: {})
     body: str = 'MockData Placeholder'
     json: dict = field(default_factory=lambda: {})
-    redirect: str = '/'
+    redirect: str = ''
     timeout: int = 0
 
 
-test_signature = MockSignature('GET', '/user/.*?/campaign/.*?/status')
-MOCKS = {
-    test_signature: MockData(),
-}
+# Storage for mock receipts
+MOCKS = {}
 
 
-def check_request(method, path):
+def get_mock(method, path):
     for sig in MOCKS:
         if sig.method == method and re.match(sig.path, path):
             return MOCKS[sig]
     return None
 
 
-def add(request):
+def add(receipt):
     """Add new mock"""
-    return True
+    MOCKS[
+        MockSignature(receipt['method'], receipt['url'])
+    ] = MockData(**receipt)
+    return 201
 
 
-def remove(request):
+def remove(receipt):
     """Remove existing mock"""
-    return True
+    return 204
 
 
 mock_methods = {
@@ -48,21 +51,23 @@ mock_methods = {
 
 
 async def index(request):
-    mock_data = check_request(request.method, request.path)
+    mock_data = get_mock(request.method, request.path)
     if mock_data:
-        text = mock_data.body
-        return web.Response(text=text)
+        response = {
+            'status': mock_data.status,
+            'text': mock_data.body,
+        }
+        return web.Response(**response)
 
     if 'py-mocker' not in request.headers:
-        text = 'Unknown resource: {0.method} {0.path}'.format(request)
-        return web.Response(text=text)
+        return web.Response(status=404)
 
     mocker_command = request.headers['py-mocker']
 
     if mocker_command not in mock_methods:
-        text = 'Unknown mocker command'
-        return web.Response(text=text)
+        text = 'Unknown mocker command {}'.format(mocker_command)
+        return web.Response(text=text, status=400)
 
-    mock_methods[mocker_command](request)
-    text = 'Do some shit'
-    return web.Response(text=text)
+    mock_receipt = await request.json()
+    status = mock_methods[mocker_command](mock_receipt[0])
+    return web.Response(status=status)
