@@ -8,7 +8,7 @@ from marshmallow import Schema, fields
 class Receipt:
     url: str
     method: str = 'GET'
-    status: int = 200
+    status: int = requests.codes.ok
     headers: dict = field(default_factory=lambda: {})
     body: str = ''
     redirect: str = '/'
@@ -60,7 +60,7 @@ class Mock:
             json=json
         )
 
-        return True if r.status_code == 201 else False
+        return True if r.status_code == requests.codes.created else False
 
     def instant(self, **kwargs):
         return self
