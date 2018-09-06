@@ -9,12 +9,19 @@ source venv/bin/activate
 pip install -e .  # “Development Mode” setup
 ```
 
-## Running mocker web-server
+## Run mocker web-server
 
 ```bash
 python -m py_mocker
 ======== Running on http://0.0.0.0:8080 ========
 (Press CTRL+C to quit)
+```
+
+## Run tests
+```bash
+cd tests
+pip install -r requirements.txt
+pytest
 ```
 
 ## Examples
