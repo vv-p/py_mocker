@@ -1,27 +1,88 @@
 # py_mocker
 Easy mocking with python, aiohttp and docker
 
-
-## Запуск веб-сервера мокера
+## Installation
 
 ```bash
-docker run -d -p 8080:8080 py_mocker
+python3.7 -m venv venv
+source venv/bin/activate
+pip install -e .  # “Development Mode” setup
 ```
 
-## Работа с мокером
+## Running mocker web-server
+
+```bash
+python -m py_mocker
+======== Running on http://0.0.0.0:8080 ========
+(Press CTRL+C to quit)
+```
+
+## Examples
 
 ```python
-from mock import get_mock, receipt
+from py_mocker import Mock, Receipt
 
 # Initialize mocker client
-mock = get_mock(host='localhost', port=8080)
+some_api = Mock(path='/', host='localhost', port=8080)
 
-@mock(receipt('GET', 'ya.ru', 200, '', '{}'))
-def test():
+# Add persistent mock
+some_api.add(method='POST', url='/test/post')
+
+
+# Different usages of py_mocker library
+
+@some_api.mock(receipt='example.mock')
+def test_api_one():
+    """
+    Mock with file
+    """
     assert True
+
+
+@some_api.mock(method='GET', url='/user/package', status=200, body='{}', timeout=2)
+def test_api_two():
+    """
+    Mock with direct arguments
+    """
+    assert True
+
+
+def test_api_three():
+    """
+    Mock with context manager
+    """
+    r = Receipt(
+        method='GET',
+        url='/user/campaign',
+        status=200,
+        headers={
+            'x-xss-protection': '1; mode=block}',
+        },
+        json={
+            'campaigns': [
+                {
+                    'id': 1,
+                },
+                {
+                    'id': 2,
+                },
+            ]
+        }
+    )
+    with some_api.instant(receipt=r):
+        assert True
+
+
+@some_api.redirect(url='/one/', to='', status=307, timeout=2)
+def test_api_four():
+    """
+    Mock with redirect
+    """
+    assert True
+
 ```
 
-## Формат файла-рецепта для мока
+## Mock-file example
 
 ```text
 GET

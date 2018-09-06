@@ -1,5 +1,5 @@
 # routes.py
-from views import index
+from py_mocker.views import index
 
 WILDCARD = '/{tail:.*}'
 

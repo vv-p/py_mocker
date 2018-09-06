@@ -21,10 +21,14 @@ class MockData:
 
 
 # Storage for mock receipts
+# Key is instance of MockSignature and value is instance of MockData
 MOCKS = {}
 
 
 def get_mock(method, path):
+    """
+    Try to get mock if exists
+    """
     for sig in MOCKS:
         if sig.method == method and re.match(sig.path, path):
             return MOCKS[sig]
@@ -44,12 +48,6 @@ def remove(receipt):
     return 204
 
 
-mock_methods = {
-    'add': add,
-    'remove': remove,
-}
-
-
 async def index(request):
     mock_data = get_mock(request.method, request.path)
     if mock_data:
@@ -63,6 +61,11 @@ async def index(request):
         return web.Response(status=404)
 
     mocker_command = request.headers['py-mocker']
+
+    mock_methods = {
+        'add': add,
+        'remove': remove,
+    }
 
     if mocker_command not in mock_methods:
         text = 'Unknown mocker command {}'.format(mocker_command)

@@ -2,3 +2,4 @@ aiohttp
 aiohttp-jinja2
 requests
 marshmallow
+click
