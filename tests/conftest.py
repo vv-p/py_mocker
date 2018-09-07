@@ -8,7 +8,7 @@ mock_status = requests.codes.partial_content
 
 
 @pytest.fixture(scope='module')
-def mock_response():
+def response():
     user_api = Mock(path='/user')
     user_api.add(
         url='/campaigns/',
@@ -16,3 +16,14 @@ def mock_response():
         status=mock_status,
     )
     yield requests.get('http://127.0.0.1:8080/user/campaigns')
+
+
+@pytest.fixture(scope='module')
+def mock_response():
+    class Request:
+        pass
+
+    request = Request()
+    request.status_code = mock_status
+    request.text = mock_body
+    yield request

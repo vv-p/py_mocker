@@ -8,5 +8,4 @@ install:
 - pip install -r tests/requirements.txt
 
 script:
-- docker run
-- pytest tests
+- pytest --cov=./py_mocker tests
