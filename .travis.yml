@@ -9,3 +9,6 @@ install:
 
 script:
 - pytest --cov=./py_mocker tests
+
+after_success:
+- bash < (curl -s https://codecov.io/bash)
