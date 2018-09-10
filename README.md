@@ -3,7 +3,7 @@ Easy mocking with python, aiohttp and docker
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Build Status](https://travis-ci.org/vv-p/py_mocker.svg?branch=master)](https://travis-ci.org/vv-p/py_mocker)
-
+[![codecov](https://codecov.io/gh/vv-p/py_mocker/branch/master/graph/badge.svg)](https://codecov.io/gh/vv-p/py_mocker)
 ## Installation
 
 ```bash
